@@ -40,6 +40,37 @@ namespace WebApi.Controllers
 
             return Ok(new { Token = jwt });
         }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("LoginPost")]
+        public IActionResult LoginPost([FromBody] LoginParams login)
+        {
+            Claim[] claims =
+                new[]
+                {
+                    new Claim(ClaimTypes.Name, "John Doe"),
+                    new(ClaimTypes.Email, login.Username)
+                };
+
+            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            SecurityTokenDescriptor tokenDescriptor =
+                new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(claims),
+                    Expires = DateTime.UtcNow.AddHours(1),
+                    SigningCredentials = new SigningCredentials(
+                        Auth.Key,
+                        SecurityAlgorithms.HmacSha256Signature),
+                    Audience = Auth.Audience,
+                    Issuer = Auth.Issuer
+                };
+
+            SecurityToken token = handler.CreateToken(tokenDescriptor);
+            string jwt = handler.WriteToken(token);
+
+            return Ok(new { Token = jwt });
+        }
     }
 
 }

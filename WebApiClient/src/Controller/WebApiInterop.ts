@@ -47,6 +47,41 @@ export class WebApiInterop
         return await result.json();
     }
 
+    async FetchJsonWithPost(sApi: string, args: any): Promise<any>
+    {
+        let sCall = this.m_sApiRoot.concat("/", sApi);
+
+        const headerVals: any =
+        {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json' // ,
+        };
+
+        if (this.m_authToken !== "")
+            headerVals['Authorization'] = "Bearer " + this.m_authToken;
+
+        let result: Response = await fetch(
+            sCall,
+            {
+                method: 'POST',
+                mode: 'cors',
+                headers: headerVals,
+                body: JSON.stringify(args)
+            });
+
+        if (result.status >= 400)
+            throw new Error(`FetchJson failed: (${result.status})`);
+
+        return await result.json();
+    }
+
+    async FetchPost<T>(sApi: string, args: any): Promise<T>
+    {
+        var json = await this.FetchJsonWithPost(sApi, args);
+
+        return json as T;
+    }
+
     async Fetch<T>(sApi: string, args: any[]): Promise<T>
     {
         var json = await this.FetchJson(sApi, args);

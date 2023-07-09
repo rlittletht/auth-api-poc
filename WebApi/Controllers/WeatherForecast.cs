@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -25,11 +26,21 @@ namespace WebApi.Controllers
                              {
                                  Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
                                  TemperatureC = Random.Shared.Next(-20, 55),
-                                 Summary = $"[{HttpContext.User.Claims.FirstOrDefault()?.Value}]: {Summaries[Random.Shared.Next(Summaries.Length)]}"
+                                 Summary = $"[{GetClaimValue(ClaimTypes.Email)}]: {Summaries[Random.Shared.Next(Summaries.Length)]}"
                              })
                .ToArray();
         }
 
+        string GetClaimValue(string claimReq)
+        {
+            foreach (Claim claim in HttpContext.User.Claims)
+            {
+                if (claim.Type == claimReq)
+                    return claim.Value;
+            }
+
+            return string.Empty;
+        }
 
         [HttpGet]
         [Route("GetWeatherForecast")]
@@ -42,7 +53,7 @@ namespace WebApi.Controllers
                                  Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
                                  TemperatureC = Random.Shared.Next(-20, 55),
                                  Summary =
-                                     $"[{HttpContext.User.Claims.FirstOrDefault()?.Value}]: {Summaries[Random.Shared.Next(Summaries.Length)]}"
+                                     $"[{GetClaimValue(ClaimTypes.Email)}]: {Summaries[Random.Shared.Next(Summaries.Length)]}"
                              })
                .ToArray();
         }

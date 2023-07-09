@@ -85,6 +85,34 @@ export default class ApiTest extends React.Component<ApiTestProps, ApiTestState>
         this.props.appContext.logTimeout("Logged in...", 2000);
     }
 
+    async loginPost()
+    {
+        try
+        {
+            if (this.m_api.isAuthenticated)
+            {
+                this.props.appContext.logTimeout("already logged in...", 2000);
+                return;
+            }
+
+            if (Cookies.get("jwt-token"))
+            {
+                this.m_api.setAuth(Cookies.get("jws-token")!);
+                this.props.appContext.logTimeout("logged in from cookie...", 2000);
+                return;
+            }
+
+            const auth: AuthModel = await this.m_api.LoginPost();
+            this.m_api.setAuth(auth.token);
+            Cookies.set("jwt-token", auth.token);
+        }
+        catch (e)
+        {
+            this.props.appContext.logError(`Error caught: ${e}`, 5000);
+        }
+        this.props.appContext.logTimeout("Logged in...", 2000);
+    }
+
     logout()
     {
         Cookies.remove("jwt-token");
@@ -143,6 +171,9 @@ export default class ApiTest extends React.Component<ApiTestProps, ApiTestState>
                     <Stack horizontal styles={stackStyles}>
                         <Stack.Item styles={stackItemStyles}>
                             <DefaultButton text="Test Login" onClick={this.login.bind(this)}/>
+                        </Stack.Item>
+                        <Stack.Item styles={stackItemStyles}>
+                            <DefaultButton text="Test Login Post" onClick={this.loginPost.bind(this)}/>
                         </Stack.Item>
                         <Stack.Item styles={stackItemStyles}>
                             <DefaultButton text="Test Logout" onClick={this.logout.bind(this)}/>

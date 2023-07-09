@@ -41,6 +41,18 @@ export class WeatherApi
         return results;
     }
 
+    async LoginPost(): Promise<AuthModel>
+    {
+        const results = this.webApiInterop.FetchPost<AuthModel>(
+            "LoginPost",
+            {
+                'Username': 'john@posted.doe.com',
+                'Password': 'Foo'
+            });
+
+        return results;
+    }
+
     removeAuth()
     {
         this.webApiInterop.removeAuth();
